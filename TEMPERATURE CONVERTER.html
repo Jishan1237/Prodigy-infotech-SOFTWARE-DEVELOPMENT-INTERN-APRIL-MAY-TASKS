@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #0077cc;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin: 0;
+            color: #0077cc;
+        }
+        h2 {
+            color: #333333;
+            margin-bottom: 20px;
+        }
+        input[type="number"], select, button {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #dddddd;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease;
+        }
+        select, button {
+            width: 100%;
+        }
+        button {
+            background-color: #0077cc;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #005ea6;
+        }
+        .clear-button {
+            background-color: #ff4444;
+            transition: background-color 0.3s ease;
+        }
+        .clear-button:hover {
+            background-color: #cc0000;
+        }
+        #result {
+            margin-top: 30px;
+            font-weight: bold;
+            border: 2px solid #dddddd;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: left;
+        }
+        #error {
+            color: #ff0000;
+            margin-top: 10px;
+        }
+        footer {
+            background-color: #0077cc;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        footer a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 500px) {
+            .container {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Temperature Converter</h1>
+</div>
+<div class="container">
+    <h2>Convert between different temperature units</h2>
+    <input type="number" id="temperature" placeholder="Enter temperature">
+    <select id="unitFrom" onchange="updateUnitOptions()">
+        <option value="celsius">Celsius (°C)</option>
+        <option value="fahrenheit">Fahrenheit (°F)</option>
+        <option value="kelvin">Kelvin (K)</option>
+        <option value="rankine">Rankine (°R)</option>
+        <option value="reaumur">Réaumur (°Ré)</option>
+    </select>
+    <select id="unitTo">
+        <option value="celsius">Celsius (°C)</option>
+        <option value="fahrenheit">Fahrenheit (°F)</option>
+        <option value="kelvin">Kelvin (K)</option>
+        <option value="rankine">Rankine (°R)</option>
+        <option value="reaumur">Réaumur (°Ré)</option>
+    </select>
+    <button onclick="convertTemperature()">Convert</button>
+    <button class="clear-button" onclick="clearFields()">Clear Input</button>
+    <div id="result"></div>
+    <div id="error"></div>
+</div>
+<footer>
+    Created by <a href="https://www.example.com">JISHAN PATHAN</a>
+</footer>
+<script>
+    function updateUnitOptions() {
+        var selectedUnit = document.getElementById("unitFrom").value;
+        var unitToDropdown = document.getElementById("unitTo");
+        
+        // Clear existing options
+        unitToDropdown.innerHTML = "";
+        
+        // Add options based on selected unit
+        switch (selectedUnit) {
+            case "celsius":
+                addOptions(unitToDropdown, ["fahrenheit", "kelvin", "rankine", "reaumur"]);
+                break;
+            case "fahrenheit":
+                addOptions(unitToDropdown, ["celsius", "kelvin", "rankine", "reaumur"]);
+                break;
+            case "kelvin":
+                addOptions(unitToDropdown, ["celsius", "fahrenheit", "rankine", "reaumur"]);
+                break;
+            case "rankine":
+                addOptions(unitToDropdown, ["celsius", "fahrenheit", "kelvin", "reaumur"]);
+                break;
+            case "reaumur":
+                addOptions(unitToDropdown, ["celsius", "fahrenheit", "kelvin", "rankine"]);
+                break;
+        }
+    }
+
+    function addOptions(selectElement, options) {
+        options.forEach(function(option) {
+            var optionElement = document.createElement("option");
+            optionElement.value = option;
+            optionElement.text = convertToDisplayName(option);
+            selectElement.appendChild(optionElement);
+        });
+    }
+
+    function convertToDisplayName(unit) {
+        switch (unit) {
+            case "celsius":
+                return "Celsius (°C)";
+            case "fahrenheit":
+                return "Fahrenheit (°F)";
+            case "kelvin":
+                return "Kelvin (K)";
+            case "rankine":
+                return "Rankine (°R)";
+            case "reaumur":
+                return "Réaumur (°Ré)";
+        }
+    }
+
+    function convertTemperature() {
+        var temperature = parseFloat(document.getElementById('temperature').value);
+        var unitFrom = document.getElementById('unitFrom').value;
+        var unitTo = document.getElementById('unitTo').value;
+        var resultElement = document.getElementById('result');
+        var errorElement = document.getElementById('error');
+        var result;
+
+        if (isNaN(temperature)) {
+            errorElement.textContent = "Please enter a valid number.";
+            resultElement.textContent = "";
+            return;
+        } else {
+            errorElement.textContent = "";
+        }
+
+        if (unitFrom === unitTo) {
+            resultElement.textContent = "Conversion not needed. The temperature is already in " + convertToDisplayName(unitTo);
+            return;
+        }
+
+        if (unitFrom === "celsius") {
+            // Convert from Celsius
+            switch (unitTo) {
+                case "fahrenheit":
+                    result = (temperature * 9 / 5) + 32;
+                    break;
+                case "kelvin":
+                    result = temperature + 273.15;
+                    break;
+                case "rankine":
+                    result = (temperature + 273.15) * 9 / 5;
+                    break;
+                case "reaumur":
+                    result = temperature * 4 / 5;
+                    break;
+            }
+        } else if (unitFrom === "fahrenheit") {
+            // Convert from Fahrenheit
+            switch (unitTo) {
+                case "celsius":
+                    result = (temperature - 32) * 5 / 9;
+                    break;
+                case "kelvin":
+                    result = (temperature + 459.67) * 5 / 9;
+                    break;
+                case "rankine":
+                    result = temperature + 459.67;
+                    break;
+                case "reaumur":
+                    result = (temperature - 32) * 4 / 9;
+                    break;
+            }
+        } else if (unitFrom === "kelvin") {
+            // Convert from Kelvin
+            switch (unitTo) {
+                case "celsius":
+                    result = temperature - 273.15;
+                    break;
+                case "fahrenheit":
+                    result = (temperature * 9 / 5) - 459.67;
+                    break;
+                case "rankine":
+                    result = temperature * 9 / 5;
+                    break;
+                case "reaumur":
+                    result = (temperature - 273.15) * 4 / 5;
+                    break;
+            }
+        } else if (unitFrom === "rankine") {
+            // Convert from Rankine
+            switch (unitTo) {
+                case "celsius":
+                    result = (temperature - 491.67) * 5 / 9;
+                    break;
+                case "fahrenheit":
+                    result = temperature - 459.67;
+                    break;
+                case "kelvin":
+                    result = temperature * 5 / 9;
+                    break;
+                case "reaumur":
+                    result = (temperature - 491.67) * 4 / 9;
+                    break;
+            }
+        } else if (unitFrom === "reaumur") {
+            // Convert from Réaumur
+            switch (unitTo) {
+                case "celsius":
+                    result = temperature * 5 / 4;
+                    break;
+                case "fahrenheit":
+                    result = (temperature * 9 / 4) + 32;
+                    break;
+                case "kelvin":
+                    result = (temperature * 5 / 4) + 273.15;
+                    break;
+                case "rankine":
+                    result = (temperature * 9 / 4) + 491.67;
+                    break;
+            }
+        }
+
+        resultElement.textContent = temperature + " " + convertToDisplayName(unitFrom) + " = " + result.toFixed(2) + " " + convertToDisplayName(unitTo);
+    }
+
+    function clearFields() {
+        document.getElementById('temperature').value = "";
+        document.getElementById('result').textContent = "";
+        document.getElementById('error').textContent = "";
+    }
+</script>
+</body>
+</html>
